@@ -107,4 +107,3 @@ EOF
     
     echo "✅ Installation complete!"
     echo "Run ./start.sh to start Nextcloud"
-fi
