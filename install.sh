@@ -1,4 +1,6 @@
 #!/bin/bash
+# Nextcloud Installation Script für Pterodactyl
+# Speichern als: /home/container/install.sh
 
 if [[ -f "./logs/installed" ]]; then
     if [ "${OCC}" == "1" ]; then 
@@ -19,6 +21,8 @@ else
     
     echo "**** Downloading Nextcloud ****"
     rm -rf nextcloud/
+    
+    # Bestimme Download-Link
     if [ "${NEXTCLOUD_RELEASE}" == "latest" ]; then
         DOWNLOAD_LINK="latest.zip"
     else
@@ -35,7 +39,7 @@ else
     rm -rf ./temp
     rm -rf /home/container/webroot/* 2>/dev/null || true
 
-    # Remove old configs
+    # Entferne alte Konfigurationen
     rm -f nginx/conf.d/default.conf
     rm -f nginx/conf.d/nextcloud.conf
     
@@ -44,6 +48,7 @@ else
     wget -O default.conf https://raw.githubusercontent.com/TinyBrickBoy/Nexcloud/refs/heads/main/default.conf
     cd /home/container
     
+    # Log-Datei erstellen
     cat <<EOF >./logs/install_log.txt
 Version: $NEXTCLOUD_RELEASE
 Link: https://download.nextcloud.com/server/releases/${DOWNLOAD_LINK}
@@ -62,7 +67,7 @@ EOF
         exit 1
     fi
 
-    # Set permissions (no chown in container, just chmod)
+    # Setze Berechtigungen (kein chown im Container)
     chmod -R 755 nextcloud
     
     echo "**** Cleaning up ****"
@@ -70,15 +75,15 @@ EOF
     
     echo "**** Configure PHP and Nginx for Nextcloud ****"
     
-    # Create PHP config directories if they don't exist
+    # Erstelle PHP config Verzeichnisse
     mkdir -p php-fpm/conf.d
     
-    # Configure PHP extensions
+    # Konfiguriere PHP Erweiterungen
     if [ -f "php-fpm/conf.d/apcu.ini" ]; then
         echo 'apc.enable_cli=1' >> php-fpm/conf.d/apcu.ini
     fi
     
-    # Configure PHP settings
+    # Konfiguriere PHP Einstellungen
     if [ -f "php-fpm/php.ini" ]; then
         sed -i \
             -e 's/;opcache.enable.*=.*/opcache.enable=1/g' \
@@ -107,3 +112,4 @@ EOF
     
     echo "✅ Installation complete!"
     echo "Run ./start.sh to start Nextcloud"
+fi
